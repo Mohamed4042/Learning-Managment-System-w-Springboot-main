@@ -25,8 +25,8 @@ public class QuizController {
 
     @PreAuthorize("hasRole('ADMIN') || hasRole('INSTRUCTOR')")
     @GetMapping("/GetCourse/{id}/getQuizsForCourse")
-    public ArrayList<Quiz> getQuizsForCourse(@PathVariable Long id) {
-        return quizService.getQuizsForCourse(id);
+    public List<Quiz> getQuizsForCourse(@PathVariable Long id) {
+        return quizService.getQuizzesForCourse(id);
     }
 
     @PreAuthorize("hasRole('ADMIN') || hasRole('INSTRUCTOR')")

@@ -3,10 +3,10 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Repository
+@Entity
+@Table(name="courses")
 public class Course {
 
     @Id
@@ -20,56 +20,67 @@ public class Course {
     private Integer duration;
 
     @JsonIgnore
-    private ArrayList<Lesson> Lessons = new  ArrayList<>() ;
-    
-    @JsonIgnore
-    private ArrayList<Student> Students = new  ArrayList<>() ;
+    @OneToMany
+    @JoinColumn(name = "course_id")
+    private ArrayList<Lesson> Lessons = new ArrayList<>();
 
     @JsonIgnore
-    public AtomicLong LessonCounter = new AtomicLong(0) ; 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name="student_course",
+            joinColumns=@JoinColumn(name="student_id" , nullable = false),
+            inverseJoinColumns=@JoinColumn(name="course_id" , nullable = false))
+    private ArrayList<Student> students = new  ArrayList<>() ;
 
     @JsonIgnore
+    public AtomicLong lessonCounter = new AtomicLong(0) ;
+
+    @JsonIgnore
+    @OneToMany
+    @JoinColumn(name = "course_id")
     private ArrayList<Assignment> Assignments = new ArrayList<>();
 
     @JsonIgnore
+    @OneToMany
+    @JoinColumn(name = "course_id")
     private ArrayList<Quiz> Quizzes = new ArrayList<>();
 
     @JsonIgnore
-    public AtomicLong AssignmentCounter = new AtomicLong(0) ;
+    public AtomicLong assignmentCounter = new AtomicLong(0) ;
 
     @JsonIgnore
-    public AtomicLong QuizCounter = new AtomicLong(0) ;
+    public AtomicLong quizCounter = new AtomicLong(0) ;
 
-    public ArrayList<Lesson> GetAllLessons() {
+    public ArrayList<Lesson> getAllLessons() {
         return this.Lessons;
     }
 
-    public void AddLesson(Lesson lesson) {
+    public void addLesson(Lesson lesson) {
         Lessons.add(lesson) ;
     }
 
-    public void UpdateLesson(Lesson lesson , int index) {
+    public void updateLesson(Lesson lesson , int index) {
         Lessons.set(index, lesson) ;
     }
 
-    public void DeleteLesson(int index) {
+    public void deleteLesson(int index) {
         Lessons.remove(index) ;
     }
 
-    public Lesson GetLesson(int index) {
+    public Lesson getLesson(int index) {
         return Lessons.get(index) ;
     }
 
-    public void EnrollStudent(Student student) {
-        Students.add(student);
+    public void enrollStudent(Student student) {
+        students.add(student);
     }
 
-    public void DeleteStudent(Student student) {
-        Students.remove(student);
+    public void deleteStudent(Student student) {
+        students.remove(student);
     }
 
-    public ArrayList<Student> GetAllStudents() {
-        return Students ;
+    public ArrayList<Student> getAllStudents() {
+        return students ;
     }
 
     public Long getId() {
@@ -141,5 +152,43 @@ public class Course {
     public Quiz getQuiz(int index) {
         return Quizzes.get(index);
     }
-    
+
+    public ArrayList<Lesson> getLessons() {
+        return Lessons;
+    }
+
+    public void setLessons(ArrayList<Lesson> lessons) {
+        Lessons = lessons;
+    }
+
+
+    public void setStudents(ArrayList<Student> students) {
+        this.students = students;
+    }
+
+    public AtomicLong getLessonCounter() {
+        return lessonCounter;
+    }
+
+
+
+    public void setAssignments(ArrayList<Assignment> assignments) {
+        Assignments = assignments;
+    }
+
+
+    public void setQuizzes(ArrayList<Quiz> quizzes) {
+        Quizzes = quizzes;
+    }
+
+    public AtomicLong getAssignmentCounter() {
+        return assignmentCounter;
+    }
+
+
+    public AtomicLong getQuizCounter() {
+        return quizCounter;
+    }
+
+
 }

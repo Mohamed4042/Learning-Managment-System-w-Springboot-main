@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.example.demo.Data.CourseData;
@@ -16,64 +17,64 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class CourseService {
 
     @JsonIgnore
-    AtomicLong IDCounter = new AtomicLong(0) ; 
+    private AtomicLong idCounter = new AtomicLong(0);
 
     @Autowired
-    CourseData courseData ;
+    private CourseData courseData;
 
-    //! ---------------------------- Course Services --------------------------------
+    // ---------------------------- Course Services --------------------------------
 
-    public ArrayList<Course> GetAllCourses() {
-        return (ArrayList<Course>) courseData.GetAllCourses();
+    public ArrayList<Course> getAllCourses() {
+        return (ArrayList<Course>) courseData.getAllCourses();
     }
 
-    public boolean AddCourse(Course course) {
-        int index = SearchForCourseByName(course) ;
-        if (index != Constance.No_Match) return false ;
-        course.setId(IDCounter.incrementAndGet());
-        courseData.AddCourse(course) ;
-        return true ;
+    public boolean addCourse(Course course) {
+        int index = searchForCourseByName(course);
+        if (index != Constance.No_Match) return false;
+        course.setId(idCounter.incrementAndGet());
+        courseData.addCourse(course);
+        return true;
     }
 
-    public void DeleteCourse(Long id) {
-        Course course = GetCourse(id) ;
-        if (course != null) courseData.DeleteCourse(SearchForCourseByName(course)) ;
+    public void deleteCourse(Long id) {
+        Course course = getCourse(id);
+        if (course != null) courseData.deleteCourse(searchForCourseByName(course));
     }
 
-    public boolean UpdateCourse(Course course) {
-        int index = (int) SearchForCourseByID(course);
-        if (index == Constance.No_Match) return false ;
-        courseData.UpdateCourse(course, (long) index) ;
-        return true ;
+    public boolean updateCourse(Course course) {
+        int index = (int) searchForCourseById(course);
+        if (index == Constance.No_Match) return false;
+        courseData.updateCourse(course, (long) index);
+        return true;
     }
 
-    public long SearchForCourseByID(Course course) {
-        for (int i = 0 ; i < GetAllCourses().size() ; i ++) {
-            if (courseData.GetCourseByIndex(i).getId().equals(course.getId())) return i ;
+    public long searchForCourseById(Course course) {
+        for (int i = 0; i < getAllCourses().size(); i++) {
+            if (courseData.getCourseByIndex(i).getId().equals(course.getId())) return i;
         }
-        return Constance.No_Match ;
+        return Constance.No_Match;
     }
 
-    public int SearchForCourseByName(Course course) {
-        for (int i = 0 ; i < GetAllCourses().size() ; i ++) {
-            if (courseData.GetCourseByIndex(i).getName().equals(course.getName())) return i ;  
+    public int searchForCourseByName(Course course) {
+        for (int i = 0; i < getAllCourses().size(); i++) {
+            if (courseData.getCourseByIndex(i).getName().equals(course.getName())) return i;
         }
-        return Constance.No_Match ;
+        return Constance.No_Match;
     }
 
-    public Course GetCourse(Long ID) {
-        for (int i = 0 ; i < GetAllCourses().size() ; i ++) {
-            if (courseData.GetCourseByIndex(i).getId().equals(ID)) return courseData.GetCourseByIndex(i) ;
+    public Course getCourse(Long id) {
+        for (int i = 0; i < getAllCourses().size(); i++) {
+            if (courseData.getCourseByIndex(i).getId().equals(id)) return courseData.getCourseByIndex(i);
         }
-        return null ;
+        return null;
     }
 
-    //! ---------------------------- Lesson Services --------------------------------
+    // ---------------------------- Lesson Services --------------------------------
 
-    public int SearchForLessonInCourse(Course course, Lesson lesson) {
-        if (course.GetAllLessons() != null) {
-            for (int i = 0; i < course.GetAllLessons().size(); i++) {
-                Lesson currentLesson = course.GetAllLessons().get(i);
+    public int searchForLessonInCourse(Course course, Lesson lesson) {
+        if (course.getAllLessons() != null) {
+            for (int i = 0; i < course.getAllLessons().size(); i++) {
+                Lesson currentLesson = course.getAllLessons().get(i);
                 if (lesson.getId() != null && lesson.getId().equals(currentLesson.getId())) {
                     return i;
                 }
@@ -82,142 +83,134 @@ public class CourseService {
         return Constance.No_Match;
     }
 
-    public boolean AddLesson(Long id , Lesson lesson) {
-        Course course = GetCourse(id) ;
+    public boolean addLesson(Long courseId, Lesson lesson) {
+        Course course = getCourse(courseId);
         if (course != null) {
-            int index = SearchForLessonInCourse(course, lesson) ;
+            int index = searchForLessonInCourse(course, lesson);
             if (index == Constance.No_Match) {
-                lesson.setId(course.LessonCounter.incrementAndGet());
-                course.AddLesson(lesson);
-                courseData.UpdateCourse(course, SearchForCourseByID(course));
-                return true ;
+                lesson.setId(course.getLessonCounter().incrementAndGet());
+                course.addLesson(lesson);
+                courseData.updateCourse(course, searchForCourseById(course));
+                return true;
             }
         }
-        return false ;
+        return false;
     }
 
-    public boolean UpdateLesson(Long id, Lesson lesson) {
-        Course course = GetCourse(id);
+    public boolean updateLesson(Long courseId, Lesson lesson) {
+        Course course = getCourse(courseId);
         if (course == null) {
-            throw new IllegalArgumentException("Course with ID " + id + " not found.");
+            throw new IllegalArgumentException("Course with ID " + courseId + " not found.");
         }
 
-        int lessonIndex = SearchForLessonInCourse(course, lesson);
+        int lessonIndex = searchForLessonInCourse(course, lesson);
         if (lessonIndex == Constance.No_Match) {
-            throw new IllegalArgumentException("Lesson with ID " + lesson.getId() + " not found in course with ID " + id);
+            throw new IllegalArgumentException("Lesson with ID " + lesson.getId() + " not found in course with ID " + courseId);
         }
 
-        course.UpdateLesson(lesson, lessonIndex);
+        course.updateLesson(lesson, lessonIndex);
 
-        long courseIndex = SearchForCourseByID(course);
+        long courseIndex = searchForCourseById(course);
         if (courseIndex == Constance.No_Match) {
-            throw new IllegalArgumentException("Course with ID " + id + " could not be located for updating lessons.");
+            throw new IllegalArgumentException("Course with ID " + courseId + " could not be located for updating lessons.");
         }
 
-        boolean updateSuccessful = courseData.UpdateCourse(course, courseIndex);
+        boolean updateSuccessful = courseData.updateCourse(course, courseIndex);
         if (!updateSuccessful) {
-
-            System.err.println("courseData.UpdateCourse failed for Course ID: " + id + " at index: " + courseIndex);
+            System.err.println("courseData.updateCourse failed for Course ID: " + courseId + " at index: " + courseIndex);
             throw new IllegalStateException("Failed to update course data. Ensure CourseData is synced and valid.");
         }
 
         return true;
     }
 
-    public Lesson GetLesson(Long CourseID , Long LessonID) {
-        Course course = GetCourse(CourseID) ;
+    public Lesson getLesson(Long courseId, Long lessonId) {
+        Course course = getCourse(courseId);
         if (course != null) {
-            for (int i = 0 ; i < course.GetAllLessons().size() ; i ++) {
-                if (course.GetAllLessons().get(i).getId().equals(LessonID)) return course.GetAllLessons().get(i) ;
+            for (Lesson lesson : course.getAllLessons()) {
+                if (lesson.getId().equals(lessonId)) return lesson;
             }
         }
-        return null ;
+        return null;
     }
 
-    public boolean DeleteLesson(Long CourseID , Long LessonID) {
-        Course course = GetCourse(CourseID) ;
+    public boolean deleteLesson(Long courseId, Long lessonId) {
+        Course course = getCourse(courseId);
         if (course != null) {
-            for (int i = 0 ; i < course.GetAllLessons().size() ; i ++) {
-                if (course.GetAllLessons().get(i).getId().equals(LessonID)) {
-                    course.GetAllLessons().remove(i) ;
-                    return true ;
-                }
+            return course.getAllLessons().removeIf(lesson -> lesson.getId().equals(lessonId));
+        }
+        return false;
+    }
+
+    // ---------------------------- Student Services --------------------------------
+
+    public int searchForStudentInCourse(Long courseId, Long studentId) {
+        Course course = getCourse(courseId);
+        if (course != null) {
+            for (int i = 0; i < course.getAllStudents().size(); i++) {
+                if (course.getAllStudents().get(i).getId().equals(studentId)) return i;
             }
         }
-        return false ;
+        return Constance.No_Match;
     }
 
-    //! ---------------------------- Student Services --------------------------------
-
-    public int SearchForStudentInCourse(Long CourseID , Long StudentID) {
-        Course course = GetCourse(StudentID);
+    public boolean enrollStudentInCourse(Long courseId, Student student) {
+        Course course = getCourse(courseId);
         if (course != null) {
-            for (int i = 0 ; i < course.GetAllStudents().size() ; i ++) {
-                if (course.GetAllStudents().get(i).getId().equals(StudentID)) return i ;
-            }
-        }
-        return Constance.No_Match ;
-    }
-
-    public boolean EnrollStudentInCourse(Long CourseID , Student student) {
-        Course course = GetCourse(CourseID) ;
-        if (course != null) {
-            int index = SearchForStudentInCourse(CourseID, student.getId()) ;
+            int index = searchForStudentInCourse(courseId, student.getId());
             if (index == Constance.No_Match) {
-                course.EnrollStudent(student);
-                courseData.UpdateCourse(course, SearchForCourseByID(course));
-                return true ;
+                course.enrollStudent(student);
+                courseData.updateCourse(course, searchForCourseById(course));
+                return true;
             }
         }
-        return false ;
+        return false;
     }
 
-    public void DeleteStudentFromCourse(Long CourseID, Long StudentID) {
-        Course course = GetCourse(CourseID);
+    public void deleteStudentFromCourse(Long courseId, Long studentId) {
+        Course course = getCourse(courseId);
         if (course == null) {
-            throw new IllegalArgumentException("Course with ID: " + CourseID + " not found.");
+            throw new IllegalArgumentException("Course with ID: " + courseId + " not found.");
         }
-        boolean removed = course.GetAllStudents().removeIf(student -> student.getId().equals(StudentID));
+        boolean removed = course.getAllStudents().removeIf(student -> student.getId().equals(studentId));
 
         if (!removed) {
-            throw new IllegalArgumentException(StudentID + " is not enrolled in the course with ID " + CourseID);
+            throw new IllegalArgumentException(studentId + " is not enrolled in the course with ID " + courseId);
         }
     }
-    public ArrayList<Student> GetAllStudentsOfCourse(Long CourseID) {
-        return GetCourse(CourseID).GetAllStudents() ;
+
+    public List<Student> getAllStudentsOfCourse(Long courseId) {
+        return getCourse(courseId).getAllStudents();
     }
 
-    //! ---------------------------- Attendance Services --------------------------------
+    // ---------------------------- Attendance Services --------------------------------
 
-    public Long GenerateOTPForLesson(Long CourseID , Long LessonID) {
-        Lesson lesson = GetLesson(CourseID, LessonID) ;
+    public Long generateOtpForLesson(Long courseId, Long lessonId) {
+        Lesson lesson = getLesson(courseId, lessonId);
         if (lesson != null) {
-            return lesson.GenerateOTP() ;
+            return lesson.generateOTP();
         }
-        return (long) Constance.No_Match ;
+        return (long) Constance.No_Match;
     }
 
-    public boolean MarkStudentInAttendance(Long CourseID , Long LessonID , Student student , Long OTP) {
-        Lesson lesson = GetLesson(CourseID, LessonID) ;
+    public boolean markStudentInAttendance(Long courseId, Long lessonId, Student student, Long otp) {
+        Lesson lesson = getLesson(courseId, lessonId);
         if (lesson != null) {
-            Course course = GetCourse(CourseID) ;
-            boolean Found = false ;
-            for (int i = 0 ; i < course.GetAllStudents().size() ; i ++) {
-                if (course.GetAllStudents().get(i).getId().equals(student.getId())) {
-                    Found = true ;
-                }
-            }
-            if (!Found) return false ;
-            if (OTP.equals(lesson.GetCurrentOTP())) {
-                lesson.GetAttendanceList().add(student) ;
-                return true ;
+            Course course = getCourse(courseId);
+            boolean found = course.getAllStudents().stream()
+                    .anyMatch(s -> s.getId().equals(student.getId()));
+
+            if (!found) return false;
+
+            if (otp.equals(lesson.getCurrentOTP())) {
+                lesson.getAttendanceList().add(student);
+                return true;
             }
         }
-        return false ;
+        return false;
     }
 
-    public ArrayList<Student> ViewAttendanceList(Long CourseID , Long LessonID) {
-        return GetLesson(CourseID, LessonID).GetAttendanceList() ;
+    public List<Student> viewAttendanceList(Long courseId, Long lessonId) {
+        return getLesson(courseId, lessonId).getAttendanceList();
     }
-
 }

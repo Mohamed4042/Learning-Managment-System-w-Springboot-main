@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated())
                         .exceptionHandling(exception -> exception
-                        .accessDeniedHandler(AccessDeniedHandler()))
+                        .accessDeniedHandler(accessDeniedHandler()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider())
@@ -69,7 +69,7 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
     @Bean
-    public AccessDeniedHandler AccessDeniedHandler() {
+    public AccessDeniedHandler accessDeniedHandler() {
         //for access denial situation handling
         return (HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);

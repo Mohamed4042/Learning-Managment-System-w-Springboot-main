@@ -1,18 +1,32 @@
 package com.example.demo.models;
 
+import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
-
+@Entity
+@Table(name="assignments")
+@NoArgsConstructor
 public class Assignment {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String description;
     private boolean submitted;
     private boolean graded;
     private String feedback;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name="student_assignment",
+            joinColumns=@JoinColumn(name="assignment_id" , nullable = false),
+            inverseJoinColumns=@JoinColumn(name="student_id" , nullable = false))
     private List<Student> submittedStudents = new ArrayList<>();
-    private List<String> feedbackList = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "assignment_id")
+    private List<Feedback> feedbackList = new ArrayList<>();
 
     public Assignment(String title, String description) {
 
@@ -73,7 +87,7 @@ public class Assignment {
         return submittedStudents;
     }
 
-    public List<String> getFeedbackList() {
+    public List<Feedback> getFeedbackList() {
         return feedbackList;
     }
 
@@ -81,8 +95,7 @@ public class Assignment {
         submittedStudents.add(student);
     }
 
-    public void addFeedback(String feedback) {
+    public void addFeedback(Feedback feedback) {
         feedbackList.add(feedback);
     }
 }
-

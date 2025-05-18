@@ -16,21 +16,16 @@ public class UserRegistrationService implements UserDetailsService {
     private final Map<String, User> users = new HashMap<>();       // username -> User
     private final Map<Integer, User> usersById = new HashMap<>();  // id -> User
 
-
     public void addPerson(User user) {
-
         if (users.containsKey(user.getUsername())) {
             throw new RuntimeException("User with this username already exists");
         }
-
         if (usersById.containsKey(user.getId())) {
             throw new RuntimeException("User with this ID already exists");
         }
-
         users.put(user.getUsername(), user);
         usersById.put(user.getId(), user);
     }
-
 
     public void deleteUser(String username) {
         User user = users.remove(username);
@@ -39,11 +34,9 @@ public class UserRegistrationService implements UserDetailsService {
         }
     }
 
-
     public User getUser(String username) {
         return users.get(username);
     }
-
 
     public User getUserById(int id) {
         return usersById.get(id);
@@ -51,6 +44,24 @@ public class UserRegistrationService implements UserDetailsService {
 
     public List<User> getAllUsers() {
         return List.copyOf(usersById.values());
+    }
+
+    public void updateUser(int id, User updatedUser) {
+        User existingUser = usersById.get(id);
+        if (existingUser == null) {
+            throw new RuntimeException("User with ID " + id + " not found");
+        }
+        // Update only the fields that are allowed to change
+        if (updatedUser.getUsername() != null) {
+            users.remove(existingUser.getUsername()); // Remove old username mapping
+            existingUser.setUsername(updatedUser.getUsername());
+            users.put(updatedUser.getUsername(), existingUser); // Add new username mapping
+        }
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+
+        usersById.put(id, existingUser); // Update the id-based map
     }
 
     @Override

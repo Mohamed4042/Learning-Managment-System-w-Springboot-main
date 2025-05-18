@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Repository
+
+@Entity
+@Table(name="lessons")
 public class Lesson {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -17,8 +19,13 @@ public class Lesson {
     private String description;
 
     @JsonIgnore
-    private ArrayList<Student> AttendanceList = new ArrayList<>() ;
-    
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name="student_lesson",
+            joinColumns=@JoinColumn(name="student_id" , nullable = false),
+            inverseJoinColumns=@JoinColumn(name="lesson_id" , nullable = false))
+    private ArrayList<Student> students = new ArrayList<>() ;
+
     @JsonIgnore
     private Long CurrentOTP ;
 
@@ -71,19 +78,33 @@ public class Lesson {
         return this;
     }
 
-    public Long GenerateOTP() {
+    public Long generateOTP() {
         CurrentOTP = (long) (Math.random() * 999999);
-        AttendanceList.clear();
+        students.clear();
         return CurrentOTP;
     }
-    
 
     public Long GetCurrentOTP() {
         return CurrentOTP ;
     }
 
-    public ArrayList<Student> GetAttendanceList() {
-        return AttendanceList ;
+    public ArrayList<Student> getAttendanceList() {
+        return students ;
     }
-    
+
+    public Long getCurrentOTP() {
+        return CurrentOTP;
+    }
+
+    public void setCurrentOTP(Long currentOTP) {
+        CurrentOTP = currentOTP;
+    }
+
+    public ArrayList<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(ArrayList<Student> students) {
+        this.students = students;
+    }
 }
