@@ -25,11 +25,9 @@ public class UserRegistrationController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         try {
-            //for user role validation
             if (!List.of("ADMIN", "INSTRUCTOR", "STUDENT").contains(user.getRole().toUpperCase())) {
                 return ResponseEntity.status(400).body("incorrect role");
             }
-            //for saving the user and econde his password
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userService.addPerson(user);
             return ResponseEntity.ok("User registered successfully");
@@ -62,24 +60,20 @@ public class UserRegistrationController {
         }
     }
 
-
     @PutMapping("/updateProfile/{id}")
     public ResponseEntity<String> updateProfile(@PathVariable int id, @RequestBody User updatedUser) {
         try {
             User existingUser = userService.getUserById(id);
-            if (existingUser != null) {
-                existingUser.setUsername(updatedUser.getUsername());
-                existingUser.setEmail(updatedUser.getEmail());
-                userService.addPerson(existingUser);
-                return ResponseEntity.ok("Profile updated successfully");
-            } else {
-                return ResponseEntity.status(404).body("user not found");
+            if (existingUser == null) {
+                return ResponseEntity.status(404).body("User not found");
             }
+            // Update only username and email, leaving password and role unchanged
+            userService.updateUser(id, updatedUser);
+            return ResponseEntity.ok("Profile updated successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("error updating profile");
+            return ResponseEntity.status(500).body("Error updating profile: " + e.getMessage());
         }
     }
-
 
     @GetMapping("/viewProfile/{id}")
     public ResponseEntity<User> viewProfile(@PathVariable int id) {
@@ -94,4 +88,13 @@ public class UserRegistrationController {
         }
     }
 
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<String> deleteUser(@PathVariable String username) {
+        try {
+            userService.deleteUser(username);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Error deleting user: " + e.getMessage());
+        }
+    }
 }

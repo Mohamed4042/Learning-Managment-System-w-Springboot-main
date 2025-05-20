@@ -10,10 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Table(name = "notifications")
 public class Notification {
     @Id
@@ -42,7 +43,7 @@ public class Notification {
         this.message = message;
     }
 
-    public boolean isRead() {
+    public boolean getRead() {
         return isRead;
     }
 

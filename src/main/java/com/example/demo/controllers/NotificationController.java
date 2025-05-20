@@ -3,7 +3,6 @@ package com.example.demo.controllers;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,12 +21,21 @@ import com.example.demo.services.UserRegistrationService;
 
 @RestController
 public class NotificationController {
-    @Autowired
+
+    private static final String USER_NOT_FOUND_MSG = "Could not find user";
+    private static final String NOTIFICATION_NOT_FOUND_MSG = "Could not find notification";
+
+
     private NotificationRepository notificationRepository;
 
-    @Autowired
     private UserRegistrationService userService;
 
+    // Constructor with dependencies injected
+    public NotificationController(NotificationRepository notificationRepository,
+                                  UserRegistrationService userService) {
+        this.notificationRepository = notificationRepository;
+        this.userService = userService;
+    }
     @PreAuthorize("hasRole('ADMIN') || hasRole('INSTRUCTOR')")
     @PostMapping("notification")
     public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
@@ -39,7 +47,7 @@ public class NotificationController {
     public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long userId) {
         User user = userService.getUserById(userId.intValue());
         if (user == null) {
-            System.out.println("Could not find user");
+            System.out.println(USER_NOT_FOUND_MSG);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -49,11 +57,9 @@ public class NotificationController {
 
     @PutMapping("/user/{userId}/notification/{id}")
     public ResponseEntity<Void> markNotificationAsRead(@PathVariable Long userId, @PathVariable Long id) {
-
         User user = userService.getUserById(userId.intValue());
         if (user == null) {
-            System.out.println("Could not find user");
-
+            System.out.println(USER_NOT_FOUND_MSG);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -71,8 +77,7 @@ public class NotificationController {
     public ResponseEntity<Void> deleteNotification(@PathVariable Long userId, @PathVariable Long id) {
         User user = userService.getUserById(userId.intValue());
         if (user == null) {
-            System.out.println("Could not find user");
-
+            System.out.println(USER_NOT_FOUND_MSG);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -82,7 +87,7 @@ public class NotificationController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
     @PreAuthorize("hasRole('ADMIN') || hasRole('INSTRUCTOR')")
     @PostMapping("/user/{userId}/notification/{id}")
     public ResponseEntity<Notification> sendNotification(@PathVariable Long userId, @PathVariable Long id) {
@@ -90,19 +95,16 @@ public class NotificationController {
         Optional<Notification> notification = notificationRepository.findById(id);
 
         if (user == null) {
-            System.out.println("Could not find user");
-
+            System.out.println(USER_NOT_FOUND_MSG);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         if (notification.isEmpty()) {
-            System.out.println("Could not find notification");
-
+            System.out.println(NOTIFICATION_NOT_FOUND_MSG);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        
-        user.addNotification(notification.get());
 
+        user.addNotification(notification.get());
         return new ResponseEntity<>(notification.get(), HttpStatus.CREATED);
     }
 }

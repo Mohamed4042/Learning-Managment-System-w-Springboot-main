@@ -9,29 +9,30 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CourseData {
 
-    private List<Course> AllCourses = new ArrayList<>();
+    private List<Course> allCourses = new ArrayList<>();
 
-    public Course GetCourseByIndex(int index) {
-        return AllCourses.get(index);
+    public Course getCourseByIndex(int index) {
+        return allCourses.get(index);
     }
 
-    public List<Course> GetAllCourses() {
-        return AllCourses;
+    public List<Course> getAllCourses() {
+        return allCourses;
     }
 
-    public void DeleteCourse(int index) {
-        AllCourses.remove(index);
+    public void deleteCourse(int index) {
+        allCourses.remove(index);
     }
 
-    public void AddCourse(Course course) {
-        AllCourses.add(course);
+    public void addCourse(Course course) {
+        allCourses.add(course);
     }
 
-    public boolean UpdateCourse(Course course, Long index) {
+    public boolean updateCourse(Course course, Long index) {
         int intIndex = Math.toIntExact(index);
-        if (intIndex < 0 || intIndex >= AllCourses.size()) {
-            return false;}
-        AllCourses.set(intIndex, course);
+        if (intIndex < 0 || intIndex >= allCourses.size()) {
+            return false;
+        }
+        allCourses.set(intIndex, course);
         return true;
     }
 }
