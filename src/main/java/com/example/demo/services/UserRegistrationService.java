@@ -27,12 +27,15 @@ public class UserRegistrationService implements UserDetailsService {
         usersById.put(user.getId(), user);
     }
 
-    public void deleteUser(String username) {
+    public boolean deleteUser(String username) {
         User user = users.remove(username);
         if (user != null) {
             usersById.remove(user.getId());
+            return true;
         }
+        return false;
     }
+
 
     public User getUser(String username) {
         return users.get(username);
