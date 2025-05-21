@@ -13,6 +13,7 @@ public class EmailDetails {
     private String subject;
     private String attachment;
 
+
     public String getMsgBody() {
         return msgBody;
     }
@@ -44,4 +45,7 @@ public class EmailDetails {
     public void setAttachment(String attachment) {
         this.attachment = attachment;
     }
+
+
 }
+
